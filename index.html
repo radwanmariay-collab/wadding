@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mohamed & Dina - Wedding Invitation</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- CSS VARIABLES & RESET (LIGHT THEME) --- */
+        :root {
+            --primary-bg: #fdfbf7; 
+            --darker-bg: #f4efe6; 
+            --accent-gold: #cba153; 
+            --text-main: #2c3e50; 
+            --text-muted: #7f8c8d; 
+            --white-box: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            overflow: hidden; 
+            position: relative;
+        }
+
+        h1, h2, h3 { font-family: 'Playfair Display', serif; font-weight: 400; }
+
+        /* --- 1. ENVELOPE LOADER --- */
+        #envelope-wrapper {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #eaddcf; 
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 9999; transition: opacity 1s ease, visibility 1s;
+        }
+
+        .envelope {
+            position: relative; width: 320px; height: 200px;
+            background: #ffffff; border: 2px solid var(--accent-gold);
+            cursor: pointer; box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 5px;
+        }
+
+        .envelope:hover { transform: translateY(-10px) scale(1.05); }
+
+        .flap {
+            position: absolute; top: 0; left: 0; width: 0; height: 0;
+            border-left: 160px solid transparent; border-right: 160px solid transparent;
+            border-top: 110px solid var(--accent-gold);
+            transform-origin: top; transition: transform 1s ease-in-out; z-index: 3;
+        }
+
+        .envelope-text {
+            position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%);
+            color: var(--text-main); font-family: 'Playfair Display', serif;
+            font-size: 1.6rem; text-align: center; width: 100%;
+            z-index: 4; pointer-events: none; transition: opacity 0.5s;
+        }
+
+        .envelope-click-hint {
+            margin-top: 40px; color: var(--text-main);
+            animation: pulse 1.5s infinite; letter-spacing: 2px; font-size: 0.9rem; font-weight: 600;
+        }
+
+        .envelope.open .flap { transform: rotateX(180deg); z-index: 1; }
+        .envelope.open .envelope-text { opacity: 0; }
+        .envelope.open { animation: flyOut 1.2s forwards 0.5s; }
+        
+        @keyframes flyOut {
+            0% { transform: translateY(0) scale(1.05); opacity: 1; }
+            100% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+        }
+
+        /* --- 2. MAIN CONTENT WRAPPER --- */
+        #main-content {
+            opacity: 0; visibility: hidden;
+            transition: opacity 1.5s ease 0.5s;
+        }
+        #main-content.visible { opacity: 1; visibility: visible; }
+
+        /* --- 3. FALLING PETALS ANIMATION --- */
+        #petals-container {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 0; overflow: hidden;
+        }
+        .petal {
+            position: absolute; top: -50px;
+            background-color: #ffd6df; 
+            border-radius: 15px 0 15px 0;
+            width: 15px; height: 15px;
+            animation: fall linear infinite; opacity: 0.7;
+            box-shadow: 0 0 5px rgba(255, 214, 223, 0.5);
+        }
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(100vh) rotate(360deg) scale(0.5); opacity: 0; }
+        }
+
+        /* --- ANIMATIONS FOR SCROLLING --- */
+        .reveal, .reveal-left, .reveal-right, .reveal-zoom { opacity: 0; transition: all 1.2s cubic-bezier(0.5, 0, 0, 1); }
+        .reveal { transform: translateY(80px); }
+        .reveal-left { transform: translateX(-80px); }
+        .reveal-right { transform: translateX(80px); }
+        .reveal-zoom { transform: scale(0.8); }
+        .active { opacity: 1; transform: translate(0) scale(1); }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            min-height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            position: relative; z-index: 1; padding: 40px 20px;
+            background: radial-gradient(circle at center, #ffffff 0%, var(--primary-bg) 100%);
+            overflow: hidden; 
+        }
+
+        /* HEARTS BACKGROUND FOR HERO SECTION */
+        #hero-hearts {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0; overflow: hidden;
+        }
+        .hero-heart {
+            position: absolute; bottom: -50px;
+            font-size: 24px; animation: floatUpHeart linear infinite; opacity: 0;
+        }
+        @keyframes floatUpHeart {
+            0% { transform: translateY(0) scale(0.8); opacity: 0; }
+            20% { opacity: 0.6; }
+            80% { opacity: 0.6; }
+            100% { transform: translateY(-100vh) scale(1.2); opacity: 0; }
+        }
+
+        .hero h3, .hero h1, .hero p, .couple-photo-wrapper {
+            position: relative; z-index: 2;
+        }
+        
+        .couple-photo-wrapper {
+            width: 300px; height: 400px; margin-bottom: 30px;
+            border-radius: 200px 200px 10px 10px; 
+            padding: 10px; background: var(--white-box);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            animation: floatUpDown 6s ease-in-out infinite;
+        }
+        .couple-photo-wrapper::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            border: 2px solid var(--accent-gold); border-radius: 200px 200px 10px 10px;
+            transform: scale(1.05); pointer-events: none;
+        }
+        .couple-photo-wrapper img {
+            width: 100%; height: 100%; object-fit: cover; border-radius: 190px 190px 8px 8px;
+        }
+        @keyframes floatUpDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .hero h3 { font-size: 1.2rem; color: var(--accent-gold); letter-spacing: 4px; margin-bottom: 15px; text-transform: uppercase; }
+        .hero h1 { font-size: 5rem; color: var(--text-main); margin: 0; line-height: 1.2; text-shadow: 2px 2px 5px rgba(0,0,0,0.05); }
+        .hero .ampersand { font-size: 4rem; color: var(--accent-gold); font-style: italic; display: inline-block; animation: pulse 3s infinite; }
+        .hero p { margin-top: 20px; font-size: 1.2rem; color: var(--text-muted); letter-spacing: 2px; }
+
+        /* --- COUNTDOWN --- */
+        .countdown-section { padding: 80px 20px; text-align: center; background-color: var(--darker-bg); position: relative; z-index: 1; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+        .countdown-section h2 { font-size: 2.5rem; color: var(--accent-gold); margin-bottom: 40px; }
+        .countdown-container { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .time-box { background: var(--white-box); border: 1px solid rgba(203, 161, 83, 0.3); padding: 25px 20px; border-radius: 15px; width: 110px; transition: all 0.4s; box-shadow: 0 10px 20px rgba(0,0,0,0.03); }
+        .time-box:hover { transform: translateY(-10px); border-color: var(--accent-gold); box-shadow: 0 15px 30px rgba(203, 161, 83, 0.2); }
+        .time-box span { display: block; font-size: 2.5rem; font-family: 'Playfair Display', serif; color: var(--text-main); }
+        .time-box p { font-size: 0.8rem; color: var(--accent-gold); margin-top: 5px; text-transform: uppercase; font-weight: 600; }
+
+        /* --- TIMELINE --- */
+        .timeline-section { padding: 100px 20px; max-width: 1000px; margin: 0 auto; position: relative; z-index: 1; }
+        .timeline-section h2 { text-align: center; font-size: 2.8rem; color: var(--accent-gold); margin-bottom: 60px; }
+        .timeline { position: relative; }
+        .timeline::after { content: ''; position: absolute; width: 2px; background-color: var(--accent-gold); top: 0; bottom: 0; left: 50%; margin-left: -1px; }
+        .timeline-item { padding: 10px 40px; position: relative; width: 50%; margin-bottom: 60px; }
+        .timeline-item::after { content: ''; position: absolute; width: 20px; height: 20px; background-color: var(--white-box); border: 4px solid var(--accent-gold); top: 15px; border-radius: 50%; z-index: 1; right: -10px; transition: 0.3s; box-shadow: 0 0 0 4px rgba(255,255,255,0.5); }
+        .timeline-item:hover::after { background-color: var(--accent-gold); transform: scale(1.3); }
+        .left { left: 0; text-align: right; }
+        .right { left: 50%; text-align: left; }
+        .right::after { left: -10px; }
+        
+        .content { padding: 25px; background: var(--white-box); border-radius: 15px; border: 1px solid #f0e6d8; transition: 0.4s; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .content:hover { transform: translateY(-10px); border-color: var(--accent-gold); }
+        
+        /* 🔥 تم تعديل ارتفاع الصورة هنا لتكون 280 بيكسل بدل 180 عشان تظهر بشكل كامل 🔥 */
+        .content img { width: 100%; height: 280px; object-fit: cover; border-radius: 10px; margin-bottom: 15px; transition: 0.5s; }
+        .content:hover img { transform: scale(1.05) rotate(-1deg); }
+        
+        .content h3 { color: var(--text-main); font-size: 1.6rem; margin-bottom: 5px; }
+        .content .date { color: var(--accent-gold); margin-bottom: 10px; font-weight: 600; font-size: 0.9rem; }
+        .content p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.7; }
+
+        /* --- THE MAZE (VENUE REVEAL) --- */
+        .maze-section { padding: 100px 20px; text-align: center; background-color: var(--darker-bg); position: relative; z-index: 1; }
+        .maze-section h2 { font-size: 2.5rem; color: var(--accent-gold); margin-bottom: 10px; }
+        .maze-section p.hint { color: var(--text-muted); margin-bottom: 30px; font-size: 1.1rem; }
+        
+        #maze-container {
+            width: 250px; height: 250px; margin: 0 auto;
+            background: var(--white-box); border: 3px solid var(--accent-gold);
+            position: relative; display: grid; border-radius: 15px; overflow: hidden;
+            grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        .maze-cell { border: 1px solid #f4efe6; }
+        .wall { background: rgba(203, 161, 83, 0.4); border-radius: 3px; }
+        .target { display: flex; justify-content: center; align-items: center; font-size: 24px; animation: pulse 1s infinite; }
+        
+        #player {
+            position: absolute; top: 0; left: 0; width: 50px; height: 50px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 24px; transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 2;
+        }
+        
+        .controls { margin-top: 30px; display: flex; justify-content: center; gap: 15px; }
+        .controls button {
+            background: var(--white-box); border: 2px solid var(--accent-gold); color: var(--accent-gold);
+            width: 50px; height: 50px; border-radius: 50%; cursor: pointer; transition: 0.3s;
+            font-size: 1.2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .controls button:hover { background: var(--accent-gold); color: var(--white-box); transform: translateY(-3px); }
+
+        #venue-details {
+            display: none; margin-top: 40px; padding: 30px; max-width: 500px; margin-left: auto; margin-right: auto;
+            background: var(--white-box); border-radius: 15px; border: 2px solid var(--accent-gold);
+            animation: fadeInScale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 20px 40px rgba(203, 161, 83, 0.2);
+        }
+        @keyframes fadeInScale { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+        
+        .btn-calendar {
+            display: inline-block; margin-top: 20px; padding: 12px 30px;
+            background: var(--accent-gold); color: var(--white-box);
+            text-decoration: none; border-radius: 25px; font-weight: 600; transition: 0.3s;
+        }
+        .btn-calendar:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(203, 161, 83, 0.4); }
+
+        /* --- GALLERY SECTION --- */
+        .gallery-section { padding: 100px 20px; background-color: var(--primary-bg); text-align: center; position: relative; z-index: 1; }
+        .gallery-section h2 { font-size: 2.8rem; color: var(--accent-gold); margin-bottom: 50px; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .gallery-item {
+            position: relative; overflow: hidden; border-radius: 15px; height: 300px; cursor: pointer;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1); transition: 0.5s;
+        }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s ease; }
+        .gallery-item:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(203, 161, 83, 0.3); }
+        .gallery-item:hover img { transform: scale(1.15); }
+        .gallery-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, rgba(44, 62, 80, 0.8), transparent);
+            display: flex; align-items: flex-end; padding: 25px; opacity: 0; transition: opacity 0.4s ease;
+        }
+        .gallery-item:hover .gallery-overlay { opacity: 1; }
+        .gallery-overlay h3 { color: var(--white-box); font-size: 1.3rem; transform: translateY(20px); transition: transform 0.4s ease; font-family: 'Playfair Display', serif;}
+        .gallery-item:hover .gallery-overlay h3 { transform: translateY(0); }
+
+        /* Footer */
+        footer { text-align: center; padding: 60px 20px; background: #2c3e50; color: #fff; position: relative; z-index: 1; }
+        footer h2 { color: var(--accent-gold); font-size: 2rem; font-style: italic; margin-bottom: 10px; }
+
+        /* Responsive */
+        @media screen and (max-width: 768px) {
+            .timeline::after { left: 31px; }
+            .timeline-item { width: 100%; padding-left: 70px; padding-right: 25px; text-align: left; }
+            .left::after, .right::after { left: 21px; }
+            .left, .right { left: 0; }
+            .hero h1 { font-size: 3.5rem; }
+            .couple-photo-wrapper { width: 250px; height: 330px; }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="envelope-wrapper">
+        <div class="envelope" id="envelope" onclick="openEnvelope()">
+            <div class="flap"></div>
+            <div class="envelope-text">
+                Mohamed & Dina<br>
+                <span style="font-size: 0.9rem; font-family: 'Montserrat', sans-serif; color: var(--text-muted);">You are invited</span>
+            </div>
+        </div>
+        <p class="envelope-click-hint">Tap To Open</p>
+    </div>
+
+    <div id="main-content">
+        <div id="petals-container"></div>
+
+        <header class="hero">
+            <div id="hero-hearts"></div>
+
+            <div class="couple-photo-wrapper hero-anim reveal-zoom">
+                <img src="images/hero.jpg" alt="Mohamed & Dina">
+            </div>
+            <h3 class="hero-anim reveal">Two Hearts, One Destiny</h3>
+            <h1 class="hero-anim reveal">Mohamed <br> <span class="ampersand">&</span> <br> Dina</h1>
+            <p class="hero-anim reveal">A promise sealed with love and time.</p>
+        </header>
+
+        <section class="countdown-section reveal">
+            <h2>The Countdown Begins</h2>
+            <div class="countdown-container">
+                <div class="time-box"><span id="days">00</span><p>Days</p></div>
+                <div class="time-box"><span id="hours">00</span><p>Hours</p></div>
+                <div class="time-box"><span id="minutes">00</span><p>Minutes</p></div>
+                <div class="time-box"><span id="seconds">00</span><p>Seconds</p></div>
+            </div>
+        </section>
+
+        <section class="timeline-section">
+            <h2 class="reveal">Our Love Story</h2>
+            <div class="timeline">
+                <div class="timeline-item left reveal-left">
+                    <div class="content">
+                        <img src="images/fatiha.jpg" alt="Fatiha">
+                        <h3>The First Step</h3>
+                        <p class="date">May 25, 2025</p>
+                        <p>The day two families became one. Reading the Fatiha marked the beautiful beginning of our forever.</p>
+                    </div>
+                </div>
+                <div class="timeline-item right reveal-right">
+                    <div class="content">
+                        <img src="images/engagement.jpg" alt="Engagement">
+                        <h3>The Engagement</h3>
+                        <p class="date">June 10, 2025</p>
+                        <p>A ring, a promise, and a million smiles. We officially stepped into a new chapter hand in hand.</p>
+                    </div>
+                </div>
+                <div class="timeline-item left reveal-left">
+                    <div class="content">
+                        <img src="images/katb-kitab.jpg" alt="Katb Kitab">
+                        <h3>Katb El Kitab</h3>
+                        <p class="date">March 27, 2026</p>
+                        <p>Signed with love, bound by faith. The day our souls were officially tied together.</p>
+                    </div>
+                </div>
+                <div class="timeline-item right reveal-right">
+                    <div class="content">
+                        <img src="images/wedding.jpg" alt="Wedding">
+                        <h3>The Wedding Day</h3>
+                        <p class="date">June 11, 2026</p>
+                        <p>The day all our dreams come true. We can't wait to celebrate the magical night with you!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="maze-section reveal">
+            <h2>Find The Venue</h2>
+            <p class="hint">Help Mohamed reach Dina to reveal the wedding location!</p>
+            
+            <div id="maze-container">
+                <div id="player">🤵</div>
+            </div>
+            
+            <div class="controls">
+                <button onclick="movePlayer('up')"><i class="fas fa-arrow-up"></i></button>
+                <button onclick="movePlayer('down')"><i class="fas fa-arrow-down"></i></button>
+                <button onclick="movePlayer('left')"><i class="fas fa-arrow-left"></i></button>
+                <button onclick="movePlayer('right')"><i class="fas fa-arrow-right"></i></button>
+            </div>
+
+            <div id="venue-details">
+                <h3 style="color:var(--accent-gold); margin-bottom: 10px; font-size: 2rem;">You Found It! 🎉</h3>
+                <p style="font-size: 1.4rem; color: var(--text-main); margin-bottom: 5px;"><strong>Royal Palace Hall</strong></p>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Reception starts at 8:00 PM</p>
+                <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Mohamed+%26+Dina+Wedding&dates=20260611T160000Z/20260611T200000Z&details=We+can't+wait+to+celebrate+with+you!" target="_blank" class="btn-calendar">
+                    <i class="fas fa-calendar-plus"></i> Save The Date
+                </a>
+            </div>
+        </section>
+
+        <section class="gallery-section reveal">
+            <h2>Our Beautiful Memories</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="images/gallery1.jpg" alt="Memory 1">
+                    <div class="gallery-overlay"><h3>Endless Love</h3></div>
+                </div>
+                <div class="gallery-item">
+                    <img src="images/gallery2.jpg" alt="Memory 2">
+                    <div class="gallery-overlay"><h3>Perfect Match</h3></div>
+                </div>
+                <div class="gallery-item">
+                    <img src="images/gallery3.jpg" alt="Memory 3">
+                    <div class="gallery-overlay"><h3>Forever & Always</h3></div>
+                </div>
+                <div class="gallery-item">
+                    <img src="images/gallery4.jpg" alt="Memory 4">
+                    <div class="gallery-overlay"><h3>Beautiful Journey</h3></div>
+                </div>
+            </div>
+        </section>
+        
+        <footer>
+            <h2>Mohamed & Dina</h2>
+            <p style="color: #a0b2c6; letter-spacing: 2px;">11 . 06 . 2026</p>
+        </footer>
+    </div>
+
+    <script>
+        window.scrollTo(0, 0);
+
+        // 1. ENVELOPE LOGIC & HERO ENTRY (And Auto Music fixed)
+        function openEnvelope() {
+            const envelope = document.getElementById('envelope');
+            const wrapper = document.getElementById('envelope-wrapper');
+            const main = document.getElementById('main-content');
+            const audio = document.getElementById("bg-music");
+            
+            envelope.classList.add('open');
+            
+            // Play Music on interaction
+            if (audio) {
+                audio.play().catch(e => console.log("Audio playback failed. Please check if music.mp3 is in the same folder.", e));
+            }
+
+            setTimeout(() => {
+                wrapper.style.opacity = '0';
+                
+                setTimeout(() => {
+                    wrapper.style.display = 'none';
+                    document.body.style.overflow = 'auto'; 
+                    main.classList.add('visible'); 
+                    
+                    const heroElems = document.querySelectorAll('.hero-anim');
+                    heroElems.forEach((el, index) => {
+                        setTimeout(() => {
+                            el.classList.add('active');
+                        }, index * 300); 
+                    });
+
+                    reveal(); 
+                }, 1000);
+            }, 1200);
+        }
+
+        // 2. FALLING PETALS ANIMATION
+        function createPetals() {
+            const container = document.getElementById('petals-container');
+            if(!container) return;
+            const petal = document.createElement('div');
+            petal.classList.add('petal');
+            
+            petal.style.left = Math.random() * 100 + 'vw';
+            petal.style.animationDuration = Math.random() * 5 + 8 + 's'; 
+            const size = Math.random() * 10 + 10; 
+            petal.style.width = size + 'px';
+            petal.style.height = size + 'px';
+            const colors = ['#ffd6df', '#ffeaef', '#ffe1c4'];
+            petal.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            container.appendChild(petal);
+            setTimeout(() => { petal.remove(); }, 13000);
+        }
+        setInterval(createPetals, 400); 
+
+        // 3. HERO HEARTS ANIMATION
+        function createHeroHearts() {
+            const container = document.getElementById('hero-hearts');
+            if(!container) return;
+            const heart = document.createElement('div');
+            heart.classList.add('hero-heart');
+            heart.innerHTML = '♥';
+            
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.animationDuration = Math.random() * 4 + 5 + 's'; 
+            heart.style.fontSize = Math.random() * 15 + 20 + 'px'; 
+            
+            heart.style.color = Math.random() > 0.5 ? 'rgba(203, 161, 83, 0.3)' : 'rgba(255, 182, 193, 0.4)';
+            
+            container.appendChild(heart);
+            setTimeout(() => { heart.remove(); }, 9000);
+        }
+        setInterval(createHeroHearts, 700);
+
+        // 4. SCROLL REVEAL
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal:not(.hero-anim), .reveal-left:not(.hero-anim), .reveal-right:not(.hero-anim), .reveal-zoom:not(.hero-anim)");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 100; 
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+
+        // 5. COUNTDOWN TIMER
+        var countDownDate = new Date(2026, 5, 11, 18, 0, 0).getTime();
+        var x = setInterval(function() {
+            var now = new Date().getTime();
+            var distance = countDownDate - now;
+
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("days").innerHTML = days < 10 ? "0" + days : days;
+            document.getElementById("hours").innerHTML = hours < 10 ? "0" + hours : hours;
+            document.getElementById("minutes").innerHTML = minutes < 10 ? "0" + minutes : minutes;
+            document.getElementById("seconds").innerHTML = seconds < 10 ? "0" + seconds : seconds;
+
+            if (distance < 0) {
+                clearInterval(x);
+                document.querySelector(".countdown-container").innerHTML = "<h2 style='color: var(--accent-gold)'>The Big Day is Here!</h2>";
+            }
+        }, 1000);
+
+        // 6. MAZE GAME LOGIC
+        const mazeGrid = [
+            [0, 0, 1, 0, 0],
+            [1, 0, 1, 0, 1],
+            [0, 0, 0, 0, 1],
+            [0, 1, 1, 0, 0],
+            [0, 0, 1, 1, 2] 
+        ];
+        
+        let pX = 0, pY = 0;
+        const mazeContainer = document.getElementById('maze-container');
+        const playerEl = document.getElementById('player');
+        
+        for(let r=0; r<5; r++){
+            for(let c=0; c<5; c++){
+                let div = document.createElement('div');
+                div.classList.add('maze-cell');
+                if(mazeGrid[r][c] === 1) div.classList.add('wall');
+                if(mazeGrid[r][c] === 2) {
+                    div.classList.add('target');
+                    div.innerHTML = '👰';
+                }
+                mazeContainer.appendChild(div);
+            }
+        }
+
+        function getCellSize() { return mazeContainer.offsetWidth / 5; }
+
+        function updatePlayerPosition() {
+            let cellSize = getCellSize();
+            playerEl.style.transform = `translate(${pX * cellSize}px, ${pY * cellSize}px)`;
+            
+            if(mazeGrid[pY][pX] === 2) {
+                setTimeout(() => {
+                    document.getElementById('venue-details').style.display = 'block';
+                    playerEl.innerHTML = '💍';
+                    document.getElementById('venue-details').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            }
+        }
+
+        function movePlayer(dir) {
+            let newX = pX, newY = pY;
+            if(dir === 'up') newY--;
+            if(dir === 'down') newY++;
+            if(dir === 'left') newX--;
+            if(dir === 'right') newX++;
+
+            if(newX >= 0 && newX < 5 && newY >= 0 && newY < 5) {
+                if(mazeGrid[newY][newX] !== 1) {
+                    pX = newX; pY = newY;
+                    updatePlayerPosition();
+                }
+            }
+        }
+
+        window.addEventListener('resize', updatePlayerPosition);
+    </script>
+</body>
+</html>
